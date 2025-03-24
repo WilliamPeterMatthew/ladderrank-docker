@@ -7,8 +7,7 @@ import yaml
 
 app = Flask(__name__)
 
-# Docker 配置信息（当前脚本在容器内部运行，不再创建新容器）
-# DOCKER_IMAGE_NAME = "mongo-query-api"  # 移除
+
 DOCKER_PORT = 5000  # 暴露的端口，保持不变
 
 def get_mongo_client():
@@ -73,13 +72,33 @@ def get_documents():
                 {'domainId': domain_id, 'docType': 10},
                 {'_id': 1, 'docId': 1, 'title': 1, 'pid': 1, 'config': 1}
             )
-            result = [{
-                '_id': str(doc['_id']),
-                'docId': doc['docId'],
-                'title': doc['title'],
-                'pid': doc['pid'],
-                'config': doc['config']
-            } for doc in documents]
+            result = []
+            for doc in documents:
+                try:
+                    config_data = yaml.safe_load(doc['config'])
+                    total_score = 0
+                    if config_data and 'subtasks' in config_data: # 检查 config_data 是否为 None
+                        for subtask in config_data['subtasks']:
+                            total_score += subtask.get('score', 0)  # 避免子任务中没有 'score' 字段的情况
+                    result.append({
+                        '_id': str(doc['_id']),
+                        'docId': doc['docId'],
+                        'title': doc['title'],
+                        'pid': doc['pid'],
+                        "score": total_score
+                    })
+                except yaml.YAMLError as e:
+                    print(f"Error parsing YAML config: {e}")
+                    # 处理 YAML 解析错误，例如，返回错误消息或跳过此文档
+                    result.append({
+                        '_id': str(doc['_id']),
+                        'docId': doc['docId'],
+                        'title': doc['title'],
+                        'pid': doc['pid'],
+                        "score": 0,
+                        "error": "Invalid config format" # 可以添加一个错误标记
+                    })
+
         else:
             return jsonify({'error': 'Invalid docType'}), 400 # docType错误，返回400
 
