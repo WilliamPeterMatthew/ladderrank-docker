@@ -49,5 +49,5 @@ jobs:
           file: ./Dockerfile
           push: true
           tags: |
-            ${{ matrix.registry == 'ghcr' && format('ghcr.io/{0}/oj-quest:{1}', steps.lowercase-owner.outputs.lower_owner, steps.extract-date.outputs.date) || format('{0}/oj-quest:{1}', secrets.DOCKER_USERNAME, steps.extract-date.outputs.date) }}
-            ${{ matrix.registry == 'ghcr' && format('ghcr.io/{0}/oj-quest:latest', steps.lowercase-owner.outputs.lower_owner) || format('{0}/oj-quest:latest', secrets.DOCKER_USERNAME) }}
+            ${{ matrix.registry == 'ghcr' && format('ghcr.io/{0}/hydro-docker-quest:{1}', steps.lowercase-owner.outputs.lower_owner, steps.extract-date.outputs.date) || format('{0}/hydro-docker-quest:{1}', secrets.DOCKER_USERNAME, steps.extract-date.outputs.date) }}
+            ${{ matrix.registry == 'ghcr' && format('ghcr.io/{0}/hydro-docker-quest:latest', steps.lowercase-owner.outputs.lower_owner) || format('{0}/hydro-docker-quest:latest', secrets.DOCKER_USERNAME) }}
