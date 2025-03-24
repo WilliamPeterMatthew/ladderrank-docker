@@ -35,5 +35,5 @@ jobs:
           file: ./Dockerfile
           push: false
           tags: |
-            oj-quest-test:latest
-            oj-quest-test:${{ steps.extract-date.outputs.date }}
+            hydro-docker-quest-test:latest
+            hydro-docker-quest-test:${{ steps.extract-date.outputs.date }}
