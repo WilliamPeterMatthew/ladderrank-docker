@@ -160,28 +160,29 @@ def get_user():
     """
     4. 通过API接口请求hydro数据库user集合的数据，会给出_id（数字）的值，
     返回集合中_id等于传入值的唯一数据。只返回对应数据的uname（字符串）字段。
+    现在支持传入逗号分隔的_id列表，返回多个用户的信息。
     """
     client = None
     try:
         client = get_mongo_client()
         db = client.hydro
-        user_id = request.args.get('_id')
+        user_ids_str = request.args.get('_id')
 
-        if not user_id:
+        if not user_ids_str:
             return jsonify({'error': '_id is required'}), 400
 
-        if not user_id.isdigit():
-            return jsonify({'error': '_id must be an integer'}), 400
+        user_ids = []
+        for user_id_str in user_ids_str.split(','):
+            if not user_id_str.isdigit():
+                return jsonify({'error': '_id must be an integer'}), 400
+            user_ids.append(int(user_id_str))
 
-        user = db.user.find_one(
-            {'_id': int(user_id)},  # 确保user_id是整数
-            {'uname': 1}
-        )
-        if user:
-            result = {'uname': user['uname']}
-            return jsonify(result), 200
-        else:
-            return jsonify({'error': 'User not found'}), 404
+        users = list(db.user.find(
+            {'_id': {'$in': user_ids}},  # 使用$in操作符查询多个ID
+            {'uname': 1, '_id': 1} #返回_id和uname
+        ))
+        result = [{'_id':user['_id'],'uname': user['uname']} for user in users]
+        return jsonify(result), 200
     except pymongo.errors.ConnectionFailure:
         return jsonify({'error': 'Failed to connect to MongoDB'}), 500
     except Exception as e:
