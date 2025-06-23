@@ -65,7 +65,7 @@ def get_documents():
                 'docId': str(doc.get('docId')), # docId可能是ObjectId
                 'title': doc['title'],
                 'beginAt': doc.get('beginAt'), # beginAt可能不存在
-                'pids': doc.get('pids', [])  # pids可能不存在
+                'pids': ','.join(str(pid) for pid in doc.get('pids', []))  # pids可能不存在
             } for doc in documents]
         elif doc_type == 10:
             documents = db.document.find(
@@ -213,7 +213,7 @@ def get_user_groups():
         result = [{
             '_id': str(group['_id']),
             'name': group['name'],
-            'uids': group.get('uids', []) # 确保返回一个列表，即使数据库中没有
+            'uids': ','.join(str(uid) for uid in group.get('uids', [])) # 确保返回一个列表，即使数据库中没有
         } for group in user_groups]
         return jsonify(result), 200
     except pymongo.errors.ConnectionFailure:
