@@ -10,6 +10,12 @@ app = Flask(__name__)
 
 DOCKER_PORT = 5000  # 暴露的端口，保持不变
 
+def format_datetime(dt):
+    """将datetime对象格式化为MySQL能识别的字符串"""
+    if isinstance(dt, datetime):
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+    return dt
+
 def get_mongo_client():
     """
     获取MongoDB客户端。
@@ -64,7 +70,7 @@ def get_documents():
                 '_id': str(doc['_id']),
                 'docId': str(doc.get('docId')), # docId可能是ObjectId
                 'title': doc['title'],
-                'beginAt': doc.get('beginAt'), # beginAt可能不存在
+                'beginAt': format_datetime(doc.get('beginAt')), # beginAt可能不存在
                 'pids': ','.join(str(pid) for pid in doc.get('pids', []))  # pids可能不存在
             } for doc in documents]
         elif doc_type == 10:
@@ -145,7 +151,7 @@ def get_records():
             'uid': record['uid'],
             'pid': record['pid'],
             'score': record['score'],
-            'judgeAt': record.get('judgeAt') # judgeAt可能不存在
+            'judgeAt': format_datetime(record.get('judgeAt')) # judgeAt可能不存在
         } for record in records]
         return jsonify(result), 200
     except pymongo.errors.ConnectionFailure:
