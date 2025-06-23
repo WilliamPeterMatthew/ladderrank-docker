@@ -1,7 +1,7 @@
 import pymongo
 from flask import Flask, jsonify, request
 from bson.objectid import ObjectId
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 import yaml
 
@@ -13,6 +13,7 @@ DOCKER_PORT = 5000  # 暴露的端口，保持不变
 def format_datetime(dt):
     """将datetime对象格式化为MySQL能识别的字符串"""
     if isinstance(dt, datetime):
+        dt = dt + timedelta(hours=8)
         return dt.strftime('%Y-%m-%d %H:%M:%S')
     return dt
 
