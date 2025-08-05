@@ -82,7 +82,9 @@ def get_documents():
             result = []
             for doc in documents:
                 try:
-                    config_data = yaml.safe_load(doc['config'])
+                    config_data = None
+                    if doc.get('config'):
+                        config_data = yaml.safe_load(doc['config'])
                     total_score = 0
                     if config_data and 'subtasks' in config_data: # 检查 config_data 是否为 None
                         for subtask in config_data['subtasks']:
